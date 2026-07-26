@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정밀 가치 산정 시뮬레이터</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1A2B4C; --navy-light:#2C4A7E; --paper:#FBFAF7; --paper2:#F2F0E9;
+    --ink:#20242E; --ink2:#565F6D; --ink3:#8993A1; --line:rgba(26,43,76,0.16);
+    --red:#B23A2E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:'Noto Sans KR',sans-serif; line-height:1.6;
+    padding:30px 16px 60px;
+  }
+  .wrap{ max-width:640px; margin:0 auto; }
+
+  h1{ font-size:19px; font-weight:700; color:var(--navy); border-bottom:2px solid var(--navy); padding-bottom:8px; margin-bottom:6px; }
+  .sub{ font-size:11.5px; color:var(--ink3); margin-bottom:18px; }
+
+  .sim-static{ border:1px solid var(--line); background:#fff; padding:18px; }
+
+  .sim-axis{
+    border-left:3px solid; background:var(--paper2); padding:12px 14px; margin-bottom:12px;
+  }
+  .sim-axis-label{
+    font-size:10px; letter-spacing:0.08em; font-weight:700; margin-bottom:8px;
+  }
+  .sim-row{
+    display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink);
+    margin-bottom:6px;
+  }
+  .sim-val{ font-weight:700; }
+
+  .sim-slider{
+    width:100%; height:6px; -webkit-appearance:none; appearance:none;
+    background:var(--line); border-radius:3px; outline:none; cursor:pointer;
+  }
+  .sim-slider::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--navy); cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1px var(--navy);
+  }
+  .sim-slider::-moz-range-thumb{
+    width:16px; height:16px; border-radius:50%; background:var(--navy);
+    cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1px var(--navy);
+  }
+
+  .sim-risk-box{
+    border:1px dashed var(--line); padding:14px; margin:16px 0; font-size:12px;
+  }
+  .sim-risk-item{ display:block; padding:5px 0; color:var(--ink2); cursor:pointer; }
+  .risk-chip{
+    display:inline-block; font-size:10px; font-weight:700; padding:1px 6px;
+    margin-right:8px; border-radius:2px;
+  }
+  .risk-chip.pos{ color:#1F8F52; background:#E7F5EC; }
+  .risk-chip.neg{ color:var(--red); background:#FBEAE7; }
+
+  .sim-result{
+    text-align:center; border:1px solid var(--line); padding:22px 16px; background:var(--paper2);
+  }
+  .sim-result-label{ font-size:10px; color:var(--ink3); letter-spacing:0.15em; margin-bottom:10px; }
+  .sim-result-score{ font-size:36px; font-weight:900; color:var(--ink3); }
+  .sim-result-grade{ font-size:20px; color:var(--ink3); margin:4px 0 14px; }
+  .sim-meter{ height:6px; background:var(--line); margin-bottom:16px; }
+  .sim-meter-fill{ height:100%; width:0%; }
+  .sim-valuation{ text-align:left; border-top:1px solid var(--line); padding-top:14px; }
+  .sim-val-label{ font-size:10px; color:var(--ink3); letter-spacing:0.1em; margin-bottom:4px; }
+  .sim-val-amount{ font-size:20px; font-weight:900; color:var(--ink3); margin-bottom:4px; }
+  .sim-val-sub{ font-size:11.5px; color:var(--ink3); }
+
+  .sim-btn{
+    width:100%; margin-top:18px; padding:13px; font-size:13.5px; font-weight:700;
+    background:var(--navy); color:#fff; border:1px solid var(--navy);
+    cursor:pointer; letter-spacing:0.05em; transition:background 0.15s;
+  }
+  .sim-btn:hover{ background:var(--navy-light); }
+  .sim-btn:active{ transform:translateY(1px); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>정밀 가치 산정 시뮬레이터</h1>
+  <p class="sub">NAAB-SIM v5.0 · 슬라이더와 리스크 항목을 조정한 뒤 [산정 실행]을 누르면 등급과 추정가치가 계산됩니다.</p>
+
+  <div class="sim-static">
+    <div class="sim-axis" style="border-left-color:#B8860B">
+      <div class="sim-axis-label" style="color:#B8860B">① 전략적 가치 (Strategic Value)</div>
+      <div class="sim-row"><span>국가 안보 기여도</span><span class="sim-val" id="v1" style="color:#B8860B">60</span></div>
+      <input type="range" min="0" max="100" value="60" class="sim-slider" id="s1">
+    </div>
+    <div class="sim-axis" style="border-left-color:#1E88A8">
+      <div class="sim-axis-label" style="color:#1E88A8">② 운용 안정성 (Operational Stability)</div>
+      <div class="sim-row"><span>능력 제어율 / 가동률</span><span class="sim-val" id="v2" style="color:#1E88A8">65</span></div>
+      <input type="range" min="0" max="100" value="65" class="sim-slider" id="s2">
+    </div>
+    <div class="sim-axis" style="border-left-color:#2E9B5C">
+      <div class="sim-axis-label" style="color:#2E9B5C">③ 기술적 독점성 (Technical Monopoly)</div>
+      <div class="sim-row"><span>대체 불가 능력 희소도</span><span class="sim-val" id="v3" style="color:#2E9B5C">50</span></div>
+      <input type="range" min="0" max="100" value="50" class="sim-slider" id="s3">
+    </div>
+    <div class="sim-axis" style="border-left-color:#7C5CBF">
+      <div class="sim-axis-label" style="color:#7C5CBF">④ 사회적 위험도 (Social Risk) — 낮을수록 우수</div>
+      <div class="sim-row"><span>부작용·피해 가능성</span><span class="sim-val" id="v4" style="color:#7C5CBF">30</span></div>
+      <input type="range" min="0" max="100" value="30" class="sim-slider" id="s4">
+    </div>
+    <div class="sim-axis" style="border-left-color:#C97A2B">
+      <div class="sim-axis-label" style="color:#C97A2B">⑤ 대체 가능성 (Replaceability) — 낮을수록 우수</div>
+      <div class="sim-row"><span>유사 능력 보유자 비율</span><span class="sim-val" id="v5" style="color:#C97A2B">40</span></div>
+      <input type="range" min="0" max="100" value="40" class="sim-slider" id="s5">
+    </div>
+
+    <div class="sim-risk-box">
+      <div class="sim-axis-label" style="color:var(--ink2);margin-bottom:8px;">▸ 리스크 계수 (Multiplier) — 해당 항목 체크</div>
+      <label class="sim-risk-item"><input type="checkbox" class="risk-cb" data-pct="5"><span class="risk-chip pos">+5%</span>대중 인지도 — 사회적 신뢰 자산으로 추가 인정</label>
+      <label class="sim-risk-item"><input type="checkbox" class="risk-cb" data-pct="-15"><span class="risk-chip neg">−15%</span>물리적 손상 가능성 — 능력 사용 시 신체 부담 큼</label>
+      <label class="sim-risk-item"><input type="checkbox" class="risk-cb" data-pct="-15"><span class="risk-chip neg">−15%</span>과거 임무 이탈 이력 — 계약 불이행 전례</label>
+      <label class="sim-risk-item"><input type="checkbox" class="risk-cb" data-pct="-20"><span class="risk-chip neg">−20%</span>정서적 불안정 — 감정 제어 실패 이력 있음</label>
+      <label class="sim-risk-item"><input type="checkbox" class="risk-cb" data-pct="-20"><span class="risk-chip neg">−20%</span>명령 불응 — 지휘 계통 지시 거부 이력</label>
+    </div>
+
+    <div class="sim-result">
+      <div class="sim-result-label">NAAB-SIM v5.0 · FINAL RESULT</div>
+      <div class="sim-result-score" id="simScore">—</div>
+      <div class="sim-result-grade" id="simGrade">대기 중</div>
+      <div class="sim-meter"><div class="sim-meter-fill" id="simMeter"></div></div>
+      <div class="sim-valuation">
+        <div class="sim-val-label">ESTIMATED ASSET VALUATION</div>
+        <div class="sim-val-amount" id="simVal">—</div>
+        <div class="sim-val-sub" id="simSub">슬라이더를 조정 후 산출 버튼을 누르세요</div>
+      </div>
+      <small style="font-size:10px;color:var(--ink3);">※ 본 결과는 법적 효력이 없습니다</small>
+    </div>
+
+    <button class="sim-btn" id="simRunBtn" type="button">[ 정밀 가치 산정 실행 ]</button>
+  </div>
+
+</div>
+
+<script>
+  function simUpdate(i){
+    document.getElementById('v'+i).textContent = document.getElementById('s'+i).value;
+  }
+
+  function simRun(){
+    const s1 = +document.getElementById('s1').value; // 전략적 가치
+    const s2 = +document.getElementById('s2').value; // 운용 안정성
+    const s3 = +document.getElementById('s3').value; // 기술적 독점성
+    const s4 = +document.getElementById('s4').value; // 사회적 위험도 (낮을수록 우수)
+    const s5 = +document.getElementById('s5').value; // 대체 가능성 (낮을수록 우수)
+
+    // 가중 합산 (최대 1000점)
+    let base = s1*3 + s2*2 + s3*3 + (100-s4)*1 + (100-s5)*1;
+
+    // 리스크 계수 적용
+    let riskPct = 0;
+    document.querySelectorAll('.risk-cb:checked').forEach(cb => {
+      riskPct += +cb.dataset.pct;
+    });
+    let score = Math.round(base * (1 + riskPct/100));
+    score = Math.max(0, score);
+
+    // 등급 판정
+    let grade, gcolor;
+    if(score >= 1000){ grade='유산 (遺産)'; gcolor='#B8860B'; }
+    else if(score >= 700){ grade='국부 (國富)'; gcolor='#7C5CBF'; }
+    else if(score >= 450){ grade='특허 (特許)'; gcolor='#1E88A8'; }
+    else if(score >= 250){ grade='비축 (備蓄)'; gcolor='#2E9B5C'; }
+    else if(score >= 150){ grade='현유 (現有)'; gcolor='#C97A2B'; }
+    else if(score >= 50){ grade='담보 (擔保)'; gcolor='#7A7A68'; }
+    else{ grade='소모 (消耗)'; gcolor='#595959'; }
+
+    // 추정가치 (임의 환산: 점수 x 1.2억원)
+    const valuation = Math.round(score * 1.2 * 10) / 10;
+
+    document.getElementById('simScore').textContent = score + 'pt';
+    document.getElementById('simScore').style.color = gcolor;
+    document.getElementById('simGrade').textContent = grade;
+    document.getElementById('simGrade').style.color = gcolor;
+    document.getElementById('simVal').textContent = valuation.toLocaleString('ko-KR') + '억 원';
+    document.getElementById('simVal').style.color = gcolor;
+    document.getElementById('simSub').textContent = '리스크 계수 ' + (riskPct>=0?'+':'') + riskPct + '% 적용됨';
+
+    const meterPct = Math.min(100, Math.round(score/12));
+    const meter = document.getElementById('simMeter');
+    meter.style.width = meterPct + '%';
+    meter.style.background = gcolor;
+  }
+
+  // 이벤트 바인딩 — 스크립트가 DOM 뒤에 위치하므로 즉시 바인딩
+  (function(){
+    [1,2,3,4,5].forEach(function(i){
+      const slider = document.getElementById('s'+i);
+      if(slider){
+        slider.addEventListener('input', function(){ simUpdate(i); });
+      }
+    });
+    const btn = document.getElementById('simRunBtn');
+    if(btn){
+      btn.addEventListener('click', simRun);
+    }
+  })();
+</script>
+</body>
+</html>
