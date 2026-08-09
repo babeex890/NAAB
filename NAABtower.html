@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAAB 본청 · 시설 배치 안내</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0d11;
+    --panel: #11151b;
+    --panel-2: #161b22;
+    --line: #232a34;
+    --ink: #e7eaee;
+    --ink-dim: #8b95a3;
+    --ink-faint: #545e6c;
+
+    --tier-critical: #7a1f1f;
+    --tier-critical-ink: #ff8a80;
+    --tier-medical: #8a4b1f;
+    --tier-medical-ink: #ffb37a;
+    --tier-technical: #1f4a6b;
+    --tier-technical-ink: #7ec4ff;
+    --tier-logistics: #3a4048;
+    --tier-logistics-ink: #b7bfc9;
+    --tier-public: #1f5e63;
+    --tier-public-ink: #6fe3ce;
+    --tier-assess: #2c5e2c;
+    --tier-assess-ink: #8fe38f;
+    --tier-protect: #33406b;
+    --tier-protect-ink: #a8b6ff;
+    --tier-intel: #5a1f5e;
+    --tier-intel-ink: #e79bff;
+    --tier-exec: #6b5417;
+    --tier-exec-ink: #ffd875;
+
+    --font-display: 'Rajdhani', sans-serif;
+    --font-body: 'Noto Sans KR', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.6;
+    background-image:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+  }
+
+  ::selection{ background:var(--tier-exec); color:#0a0d11; }
+
+  /* ===== Header ===== */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,13,17,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    padding:18px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px;
+  }
+  .brand{ display:flex; align-items:baseline; gap:12px; }
+  .brand-mark{
+    font-family:var(--font-display); font-weight:700; font-size:22px;
+    letter-spacing:0.12em; color:var(--ink);
+  }
+  .brand-mark span{ color:var(--tier-exec-ink); }
+  .brand-sub{
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);
+    letter-spacing:0.04em;
+  }
+  .doc-code{
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);
+    text-align:right; letter-spacing:0.03em;
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    padding:64px 32px 40px;
+    max-width:1180px; margin:0 auto;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-eyebrow{
+    font-family:var(--font-mono); font-size:12px; color:var(--tier-critical-ink);
+    letter-spacing:0.15em; margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .hero-eyebrow::before{
+    content:''; width:8px; height:8px; background:var(--tier-critical-ink);
+    display:inline-block; animation:pulse 2.2s infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+  h1{
+    font-family:var(--font-display); font-weight:700; font-size:clamp(32px,5vw,54px);
+    letter-spacing:0.01em; color:var(--ink); margin-bottom:16px;
+  }
+  .hero-desc{ color:var(--ink-dim); max-width:640px; font-size:15px; }
+
+  /* Legend */
+  .legend{
+    display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:32px;
+  }
+  .legend-item{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-dim);
+  }
+  .legend-dot{ width:10px; height:10px; flex-shrink:0; }
+
+  /* ===== Layout ===== */
+  .layout{
+    max-width:1180px; margin:0 auto;
+    display:grid; grid-template-columns:220px 1fr;
+    gap:0;
+  }
+  @media (max-width:860px){
+    .layout{ grid-template-columns:1fr; }
+    .elevation{ display:none; }
+  }
+
+  /* ===== Elevation (signature element) ===== */
+  .elevation{
+    position:sticky; top:78px; align-self:start;
+    padding:32px 20px; border-right:1px solid var(--line);
+    height:calc(100vh - 78px); overflow-y:auto;
+  }
+  .elevation-label{
+    font-family:var(--font-mono); font-size:10px; color:var(--ink-faint);
+    letter-spacing:0.1em; margin-bottom:14px;
+  }
+  .stack{ display:flex; flex-direction:column; border:1px solid var(--line); }
+  .stack-seg{
+    height:15px; cursor:pointer; position:relative;
+    border-bottom:1px solid rgba(0,0,0,0.35);
+    transition:filter 0.15s ease, width 0.15s ease;
+  }
+  .stack-seg:hover{ filter:brightness(1.4); }
+  .stack-seg::after{
+    content:attr(data-floor);
+    position:absolute; left:100%; top:50%; transform:translateY(-50%);
+    margin-left:8px; font-family:var(--font-mono); font-size:10px;
+    color:var(--ink-faint); white-space:nowrap; opacity:0;
+    transition:opacity 0.12s ease;
+  }
+  .stack-seg:hover::after{ opacity:1; color:var(--ink); }
+  .stack-seg.roof{ height:10px; }
+  .ground-mark{
+    height:2px; background:var(--tier-exec-ink); margin:0; opacity:0.6;
+  }
+
+  /* ===== Main content ===== */
+  main{ padding:20px 32px 100px; }
+
+  .floor-block{
+    display:grid; grid-template-columns:120px 1fr;
+    gap:24px; padding:26px 0; border-bottom:1px solid var(--line);
+    scroll-margin-top:90px;
+  }
+  @media (max-width:600px){
+    .floor-block{ grid-template-columns:1fr; gap:8px; }
+  }
+
+  .floor-id{ position:relative; }
+  .floor-num{
+    font-family:var(--font-display); font-weight:700; font-size:40px;
+    line-height:1; letter-spacing:0.01em;
+  }
+  .floor-tag{
+    display:inline-block; margin-top:8px; padding:3px 8px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em;
+    border:1px solid currentColor;
+  }
+
+  .floor-body{ padding-top:4px; }
+  .floor-dept{
+    font-family:var(--font-body); font-weight:700; font-size:16px;
+    color:var(--ink); margin-bottom:10px;
+  }
+  .room-list{
+    display:flex; flex-wrap:wrap; gap:8px 10px;
+    list-style:none;
+  }
+  .room-list li{
+    font-family:var(--font-mono); font-size:12.5px; color:var(--ink-dim);
+    padding:5px 10px; background:var(--panel); border:1px solid var(--line);
+    white-space:nowrap;
+  }
+  .room-list li::before{ content:'· '; color:var(--ink-faint); }
+
+  /* group header */
+  .group-header{
+    max-width:1180px; margin:0 auto; padding:52px 32px 8px;
+    display:flex; align-items:center; gap:14px;
+  }
+  .group-header .line{ flex:1; height:1px; background:var(--line); }
+  .group-header h2{
+    font-family:var(--font-display); font-weight:600; font-size:14px;
+    letter-spacing:0.14em; color:var(--ink-faint); text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  footer{
+    max-width:1180px; margin:0 auto; padding:60px 32px 80px;
+    border-top:1px solid var(--line); margin-top:40px;
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">NAAB <span>본청</span></div>
+    <div class="brand-sub">국가자산관리원 · 시설 배치 안내</div>
+  </div>
+  <div class="doc-code">DOC-FAC-19F·B5 / REV.A / 열람등급 필요</div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">FACILITY DIRECTORY — 내부 열람용</div>
+  <h1>본청 층별 배치안</h1>
+  <p class="hero-desc">
+    지하 5층부터 지상 19층, 옥상 시설 및 부속 연구동·주차동까지 전 구역의 부서 및 시설 배치를 정리한 안내 문서입니다.
+    좌측 단면도에서 층을 선택하거나 아래에서 스크롤하여 확인하세요.
+  </p>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-critical)"></span>최고기밀 / 비상지휘</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-medical)"></span>구금·의무 통제구역</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-technical)"></span>기계·전산 시설</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-logistics)"></span>물류·보관</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-public)"></span>민원지원국(공개)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-assess)"></span>감정관리국</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-protect)"></span>자산보호국</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-intel)"></span>정보통계국(기밀)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--tier-exec)"></span>지휘·임원구역</div>
+  </div>
+</section>
+
+<div class="layout">
+  <aside class="elevation">
+    <div class="elevation-label">건물 단면 / BUILDING SECTION</div>
+    <div class="stack" id="stack"></div>
+  </aside>
+
+  <main id="main"></main>
+</div>
+
+<footer>
+  <span>NAAB FACILITY MANAGEMENT DIVISION</span>
+  <span>본 문서의 무단 반출·복제를 금함</span>
+</footer>
+
+<script>
+const FLOORS = [
+  {id:'roof', label:'옥상', tier:'critical', tag:'통신/비상', dept:'옥상 시설',
+    rooms:['통신시설','헬리패드/비상착륙장','기상관측장비','비상통신 안테나']},
+  {id:'19f', label:'19F', tier:'critical', tag:'최고기밀', dept:'국가자산 통합상황실 · 청사 보안통제',
+    rooms:['국가자산 통합상황실','비상지휘센터','청사 보안통제실']},
+  {id:'18f', label:'18F', tier:'exec', tag:'지휘부', dept:'청장실 · 비서실',
+    rooms:['청장실','비서실','보좌실','고위급 접견실']},
+  {id:'17f', label:'17F', tier:'exec', tag:'지휘부', dept:'부청장실 · 회의지원',
+    rooms:['부청장실','국장회의실','대회의실','중앙회의지원실']},
+  {id:'16f', label:'16F', tier:'exec', tag:'국장급', dept:'4국 국장 · 부국장 집무실',
+    rooms:['정보국 국장/부국장실','민원국 국장/부국장실','자산국 국장/부국장실','감정국 국장/부국장실']},
+
+  {id:'15f', label:'15F', tier:'intel', tag:'기밀', dept:'정보통계국 · 통합분석',
+    rooms:['통합분석구역','자료보존실']},
+  {id:'14f', label:'14F', tier:'intel', tag:'기밀', dept:'정보통계국 · 첩보/암호',
+    rooms:['국제첩보실','암호통신실']},
+  {id:'13f', label:'13F', tier:'intel', tag:'제한', dept:'정보통계국 · 수사',
+    rooms:['수사과','조사실']},
+  {id:'12f', label:'12F', tier:'intel', tag:'제한', dept:'정보통계국 · 감찰',
+    rooms:['감찰실']},
+
+  {id:'11f', label:'11F', tier:'protect', tag:'제한', dept:'자산보호국 · 재무과',
+    rooms:['재무과']},
+  {id:'10f', label:'10F', tier:'protect', tag:'제한', dept:'자산보호국 · 인사과',
+    rooms:['인사과']},
+  {id:'9f', label:'9F', tier:'protect', tag:'제한', dept:'자산보호국 · 총무과',
+    rooms:['총무과']},
+
+  {id:'8f', label:'8F', tier:'assess', tag:'공개', dept:'감정관리국 · 자산등록과',
+    rooms:['자산등록과']},
+  {id:'7f', label:'7F', tier:'assess', tag:'공개', dept:'감정관리국 · 제3감정과',
+    rooms:['제3감정과']},
+  {id:'6f', label:'6F', tier:'assess', tag:'공개', dept:'감정관리국 · 제2감정과',
+    rooms:['제2감정과']},
+  {id:'5f', label:'5F', tier:'assess', tag:'공개', dept:'감정관리국 · 제1감정과',
+    rooms:['제1감정과']},
+
+  {id:'4f', label:'4F', tier:'public', tag:'공개', dept:'민원지원국 · 사후지원과',
+    rooms:['사후지원과']},
+  {id:'3f', label:'3F', tier:'public', tag:'공개', dept:'민원지원국 · 위기대응과',
+    rooms:['위기대응과']},
+  {id:'2f', label:'2F', tier:'public', tag:'공개', dept:'민원지원국 · 실태조사과',
+    rooms:['실태조사과','의무실']},
+  {id:'1f', label:'1F', tier:'public', tag:'공개', dept:'민원지원국 · 접수',
+    rooms:['민원실','안내실','출입통제실']},
+
+  {id:'b1', label:'B1', tier:'logistics', tag:'제한', dept:'물류 · 보관',
+    rooms:['물류 하역장','물류창고','물자관리실','장비보관실','소모품창고','폐기물 임시보관실']},
+  {id:'b2', label:'B2', tier:'technical', tag:'제한', dept:'기계 · 전산',
+    rooms:['기계실','전력실','비상시설','비상발전실','공조설비실','서버실','통신실','전산보안실']},
+  {id:'b3', label:'B3', tier:'medical', tag:'기밀', dept:'의무 · 구금 통제구역',
+    rooms:['기밀 의무실','응급처치실','수술실','격리병실','캐피터 안정화실','임시 억류시설','보안면회실','구금자 조사실']},
+  {id:'b4', label:'B4', tier:'critical', tag:'최고기밀', dept:'고위험 억류 · 증거 통제구역',
+    rooms:['고위험 억류시설','능력억제 격리실','위험자산 격리보관고','압수물 보관고','고위험 증거물 보관고','증거물 감식실','구금자 이송통제실']},
+  {id:'b5', label:'B5', tier:'critical', tag:'최고기밀', dept:'국가비상지휘실',
+    rooms:['국가비상지휘실','비상대피시설','비상통신실','장기비축고','비상발전시설','비상탈출로']},
+];
+
+const ANNEX = [
+  {
+    title:'부속 건물 · 연구 실험동 (지상 3층)',
+    floors:[
+      {label:'3F', tier:'critical', tag:'최고기밀', dept:'고위험 실험 · 격리', rooms:['고위험 실험실','격리실','연구통제실']},
+      {label:'2F', tier:'medical', tag:'기밀', dept:'캐피터 능력 연구', rooms:['캐피터 능력 연구실','특수장비 실험실']},
+      {label:'1F', tier:'assess', tag:'제한', dept:'일반 연구', rooms:['일반 연구실','실험실','연구지원실']},
+    ]
+  },
+  {
+    title:'별도 주차동',
+    floors:[
+      {label:'주차동', tier:'logistics', tag:'제한', dept:'차량 시설',
+       rooms:['직원·방문객 주차장','관용차량 보관소','경호차량 대기구역','긴급출동 차량 차고']},
+    ]
+  }
+];
+
+function tierVars(tier){
+  return {bg:`var(--tier-${tier})`, ink:`var(--tier-${tier}-ink)`};
+}
+
+function renderStack(){
+  const stack = document.getElementById('stack');
+  FLOORS.forEach(f=>{
+    const seg = document.createElement('div');
+    seg.className = 'stack-seg' + (f.id==='roof' ? ' roof' : '');
+    seg.style.background = `var(--tier-${f.tier})`;
+    seg.dataset.floor = f.label;
+    seg.addEventListener('click', ()=>{
+      document.getElementById('fb-'+f.id).scrollIntoView({behavior:'smooth', block:'center'});
+    });
+    stack.appendChild(seg);
+    if(f.id==='1f'){
+      const mark = document.createElement('div');
+      mark.className = 'ground-mark';
+      stack.appendChild(mark);
+    }
+  });
+}
+
+function renderFloor(container, f){
+  const {bg, ink} = tierVars(f.tier);
+  const block = document.createElement('div');
+  block.className = 'floor-block';
+  block.id = 'fb-' + (f.id || f.label);
+  block.innerHTML = `
+    <div class="floor-id" style="color:${ink}">
+      <div class="floor-num">${f.label}</div>
+      <div class="floor-tag" style="border-color:${ink}; color:${ink}">${f.tag}</div>
+    </div>
+    <div class="floor-body">
+      <div class="floor-dept">${f.dept}</div>
+      <ul class="room-list">${f.rooms.map(r=>`<li>${r}</li>`).join('')}</ul>
+    </div>
+  `;
+  block.style.borderLeft = `3px solid ${bg}`;
+  block.style.paddingLeft = '18px';
+  container.appendChild(block);
+}
+
+function renderMain(){
+  const main = document.getElementById('main');
+  FLOORS.forEach(f=> renderFloor(main, f));
+
+  ANNEX.forEach(section=>{
+    const header = document.createElement('div');
+    header.className = 'group-header';
+    header.innerHTML = `<h2>${section.title}</h2><div class="line"></div>`;
+    document.body.insertBefore(header, document.querySelector('footer'));
+    const wrap = document.createElement('main');
+    wrap.style.maxWidth = '1180px';
+    wrap.style.margin = '0 auto';
+    wrap.style.padding = '0 32px 20px';
+    section.floors.forEach(f=> renderFloor(wrap, f));
+    document.body.insertBefore(wrap, document.querySelector('footer'));
+  });
+}
+
+renderStack();
+renderMain();
+</script>
+
+</body>
+</html>
