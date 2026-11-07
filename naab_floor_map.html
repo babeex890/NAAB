@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1424">
+<title>NAAB 본청 및 부속시설 종합 배치도</title>
+<style>
+:root{
+  --bg:#0d1424; --s1:#141d31; --s2:#1b2640; --line:#26324d;
+  --tx:#e8ecf5; --sub:#8d99b3; --amber:#f2b84b; --blue:#7aa2ff;
+  --ch:clamp(24px,4.6dvh,42px); --cw:46px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--tx);overflow:hidden;
+  font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+button{font-family:inherit}
+.app{height:100vh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr)}
+
+header{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:calc(12px + env(safe-area-inset-top)) clamp(12px,2vw,24px) 12px;
+  border-bottom:1px solid var(--line);
+}
+h1{font-size:clamp(1rem,1.6vw,1.25rem);font-weight:700;letter-spacing:-.01em}
+header p{font-size:.78rem;color:var(--sub);margin-top:2px}
+.legend{display:flex;gap:14px;font-size:.72rem;color:var(--sub);white-space:nowrap}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:0}
+.legend .d{border-radius:50%;background:var(--blue)}
+.legend .a{border-radius:3px;background:var(--amber)}
+
+main{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(320px,.8fr);min-height:0}
+
+/* 층 지도 */
+.map{
+  display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(6px,1.6dvh,14px);min-height:0;overflow:auto;
+  padding:clamp(12px,2.2dvh,24px) clamp(12px,2vw,24px);
+}
+.grp{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;align-items:center}
+.grp h2{font-size:.78rem;font-weight:600;color:var(--sub);line-height:1.3;padding-left:9px;border-left:3px solid var(--g)}
+.grp .s{display:none}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw),1fr));gap:4px}
+.chip{
+  position:relative;height:var(--ch);border:1px solid var(--line);border-radius:7px;
+  background:var(--s1);color:var(--tx);font-size:.78rem;font-weight:600;
+  font-variant-numeric:tabular-nums;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.chip:hover{border-color:var(--blue);background:var(--s2)}
+.chip:focus-visible,.nav button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.chip.on{background:var(--amber);border-color:var(--amber);color:#1a1405;box-shadow:0 0 0 3px rgba(242,184,75,.22)}
+.chip .dot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.chip.on .dot{background:#1a1405}
+
+/* 상세 패널 */
+.detail{
+  background:var(--s1);border-left:1px solid var(--line);min-height:0;overflow:auto;
+  display:flex;flex-direction:column;gap:clamp(10px,2dvh,18px);
+  padding:clamp(14px,2.4dvh,26px) clamp(14px,2vw,26px) calc(clamp(14px,2.4dvh,26px) + env(safe-area-inset-bottom));
+}
+.dh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.big{font-size:clamp(2rem,6dvh,3rem);font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sub{margin-top:6px;font-size:.85rem;color:var(--sub)}
+.tag{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:.78rem;padding:3px 10px;border-radius:99px;background:var(--s2);border:1px solid var(--line)}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--g)}
+.nav{display:flex;gap:6px;flex:none}
+.nav button{width:36px;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--s2);color:var(--tx);font-size:.8rem;cursor:pointer}
+.nav button:hover:not(:disabled){border-color:var(--blue)}
+.nav button:disabled{opacity:.35;cursor:default}
+.unit h3{font-size:.82rem;font-weight:600;color:var(--blue);margin-bottom:7px}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pills span{font-size:.86rem;padding:5px 10px;border-radius:8px;background:var(--bg);border:1px solid var(--line);color:#cfd6e6}
+.pf-title{font-size:.8rem;color:var(--sub);margin-bottom:8px}
+.pf{display:flex;gap:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.pf+.pf{margin-top:8px}
+.pf.many{padding:10px;gap:12px}
+.pf.many .ph{width:72px;height:72px}
+.pf.many .pi p{margin-bottom:6px}
+.ph{width:96px;height:96px;aspect-ratio:1/1;flex:none;align-self:flex-start;border-radius:9px;overflow:hidden;background:var(--s2);display:grid;place-items:center;font-size:1.6rem;font-weight:700;color:var(--sub)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.pi{min-width:0;flex:1}
+.pi b{font-size:1.1rem}
+.pi p{font-size:.78rem;line-height:1.4;color:var(--blue);margin:3px 0 10px}
+.pi dl{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.pi dt{font-size:.68rem;color:var(--sub)}
+.pi dd{font-size:.84rem}
+.pi .w{grid-column:1/-1}
+.none{font-size:.82rem;color:var(--sub)}
+
+/* 폰 */
+@media (max-width:760px){
+  :root{--cw:36px;--ch:clamp(26px,4dvh,30px)}
+  header{padding:calc(10px + env(safe-area-inset-top)) 12px 10px}
+  header p,.legend .a{display:none}
+  main{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  .map{justify-content:flex-start;gap:7px;padding:10px 12px;overflow:visible}
+  .grp{grid-template-columns:58px minmax(0,1fr);gap:8px}
+  .grp h2{font-size:.68rem;padding-left:6px}
+  .grp .n{display:none}
+  .grp .s{display:inline}
+  .chips{gap:3px}
+  .chip{font-size:.7rem;border-radius:6px}
+  .detail{border-left:0;border-top:1px solid var(--line);padding:12px 12px calc(12px + env(safe-area-inset-bottom));gap:10px}
+  .big{font-size:1.8rem}
+  .ph{width:64px;height:64px}
+  .pf{padding:10px;gap:10px}
+  .pf.many .ph{width:56px;height:56px}
+  .pi p{margin-bottom:6px}
+}
+
+/* 4명 이상: 2열 압축 카드 */
+.pfs.dense{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pfs.dense .pf-title{grid-column:1/-1;margin-bottom:2px}
+.pfs.dense .pf{flex-direction:column;gap:6px;padding:8px;margin:0}
+.pfs.dense .ph{width:44px;height:44px;font-size:1rem}
+.pfs.dense .pi b{font-size:.9rem}
+.pfs.dense .pi p{font-size:.68rem;margin:2px 0 5px}
+.pfs.dense .pi dl{display:flex;flex-wrap:wrap;gap:1px 8px}
+.pfs.dense .pi dt{display:none}
+.pfs.dense .pi dd{font-size:.72rem;color:#cfd6e6}
+.pfs.dense .pi .w{flex-basis:100%}
+
+/* 탭 및 로고 */
+[hidden]{display:none!important}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:34px;height:34px;flex:none;border-radius:8px;background:#f1f4fa;display:grid;place-items:center;overflow:hidden;color:#33405c;font-weight:800}
+.logo img{width:100%;height:100%;object-fit:contain;padding:3px;display:block}
+.logo{--lh:52px;width:auto;height:var(--lh);aspect-ratio:3/2}
+.logo.sq{aspect-ratio:1/1}
+.logo.r54{aspect-ratio:1.5/1.2}
+.logo.xl{--lh:104px;border-radius:12px;font-size:1.6rem}
+.legend{margin-left:auto}
+.tabs{display:flex;gap:4px;padding:3px;background:var(--s1);border:1px solid var(--line);border-radius:11px;flex:none}
+.tabs button{border:0;background:transparent;color:var(--sub);font-weight:600;font-size:.82rem;padding:7px 14px;border-radius:8px;cursor:pointer}
+.tabs button:hover{color:var(--tx)}
+.tabs button[aria-selected=true]{background:var(--amber);color:#1a1405}
+.tabs button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ICAA */
+.legend em{font-style:normal}
+#imap{justify-content:flex-start}
+.chip.t{height:auto;min-height:var(--ch);padding:5px 8px;line-height:1.25;font-size:.76rem}
+#imap .chips{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
+.info{padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--s1);font-size:.78rem;line-height:1.5;color:var(--sub)}
+.info b{display:block;color:var(--tx);font-size:.9rem;margin-bottom:2px}
+.info span{display:block}
+.big.t{font-size:clamp(1.4rem,3.8dvh,1.9rem);line-height:1.2}
+
+/* 국가기관 */
+.fld{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.fld .unit.full{grid-column:1/-1}
+.fld .unit p{font-size:.92rem;line-height:1.5}
+@media (max-width:760px){#imap .chips{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}.grp.ig{grid-template-columns:64px minmax(0,1fr)}.tabs button{font-size:.72rem;padding:7px 4px}.fld{gap:10px 12px}}
+
+/* 세계 10대 기업 */
+.map.corp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:clamp(72px,12.5dvh,100px);align-content:center;gap:10px}
+.tile{display:flex;align-items:center;gap:12px;min-width:0;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--s1);color:var(--tx);text-align:left;cursor:pointer;transition:background .15s,border-color .15s}
+.tile .logo{--lh:clamp(56px,10dvh,80px)}
+.tile .tx{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.tile b{font-size:.92rem;line-height:1.25}
+.tile small{font-size:.74rem;color:var(--sub)}
+.tile em{font-style:normal;font-size:.72rem;color:var(--sub);font-variant-numeric:tabular-nums;align-self:flex-start}
+.tile:hover{border-color:var(--blue);background:var(--s2)}
+.tile.on{border-color:var(--amber);background:var(--s2);box-shadow:0 0 0 2px rgba(242,184,75,.25)}
+.tile.on em{color:var(--amber)}
+.tile:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.ch{display:flex;align-items:center;gap:12px;min-width:0}
+.rk{font-size:.78rem;color:var(--amber);font-weight:700;font-variant-numeric:tabular-nums}
+.cn{font-size:clamp(1.3rem,3.2dvh,1.7rem);font-weight:800;line-height:1.15;letter-spacing:-.01em}
+.lead{font-size:.95rem;line-height:1.55}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px;font-size:.78rem}
+.chain span{padding:4px 10px;border-radius:99px;border:1px solid var(--blue);color:var(--blue)}
+.chain i{font-style:normal;color:var(--sub)}
+.detail > .tag{align-self:flex-start;margin-top:0}
+@media (max-width:760px){
+  .bt,.legend{display:none}
+  header{gap:10px}
+  .tabs{flex:1}
+  .tabs button{flex:1;padding:7px 6px;font-size:.8rem}
+  .map.corp{grid-auto-rows:68px;gap:6px;align-content:start}
+  .tile{padding:6px 8px;gap:8px;border-radius:10px}
+  .tile .logo{--lh:52px}
+  .tile b{font-size:.76rem}
+  .tile small{font-size:.66rem}
+  .tile em{display:none}
+  .brand .logo{--lh:42px}
+  .logo.xl{--lh:72px;font-size:1.2rem}
+  .cn{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <span class="logo sq" id="hlogo"><img data-id="Cf64duD" alt="NAAB"></span>
+      <span class="logo sq" id="hlogo2" hidden><img data-id="NGvHL6N" alt="ICAA"></span>
+      <div class="bt">
+        <h1 id="h1">NAAB 본청 층별 배치</h1>
+        <p id="sub">층별 배치 및 담당 간부 현황</p>
+      </div>
+    </div>
+    <div class="legend" id="legend">
+      <span><i class="d"></i><em id="lg1">간부 프로필</em></span>
+      <span class="a"><i class="a"></i><em id="lg2">선택한 층</em></span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="floors" aria-selected="true">층별 배치</button>
+      <button type="button" role="tab" data-tab="corp" aria-selected="false">세계 10대 기업</button>
+      <button type="button" role="tab" data-tab="org" aria-selected="false">국가기관</button>
+      <button type="button" role="tab" data-tab="icaa" aria-selected="false">ICAA</button>
+    </div>
+  </header>
+  <main id="p-floors">
+    <nav class="map" id="map" aria-label="층 선택"></nav>
+    <section class="detail" id="detail" aria-live="polite"></section>
+  </main>
+  <main id="p-corp" hidden>
+    <nav class="map corp" id="cmap" aria-label="기업 선택"></nav>
+    <section class="detail" id="cdetail" aria-live="polite"></section>
+  </main>
+  <main id="p-icaa" hidden>
+    <nav class="map" id="imap" aria-label="ICAA 직위 선택"></nav>
+    <section class="detail" id="idetail" aria-live="polite"></section>
+  </main>
+  <main id="p-org" hidden>
+    <nav class="map corp" id="omap" aria-label="기관 선택"></nav>
+    <section class="detail" id="odetail" aria-live="polite"></section>
+  </main>
+</div>
+
+<script>
+const G = [
+  { s:"옥상", n:"옥상", c:"#8a94ab", f:[
+    ["RF","통신시설, 헬리패드, 기상관측장비, 안테나, 위성통신시설"]
+  ]},
+  { s:"지휘", n:"고위직 및 통합지휘구역", c:"#c08bff", f:[
+    ["45F","통합상황실, 비상지휘센터, 보안통제실, 전국통합관제실"],
+    ["44F","청장실, 비서실, 보좌실, 고위급 접견실"],
+    ["43F","부청장실, 국장회의실, 대회의실, 중앙회의지원실"],
+    ["42F","국장 및 부국장 집무실"]
+  ]},
+  { s:"정보통계", n:"정보통계국", c:"#5aa9ff", f:[
+    ["41F","법무실: 행정쟁송팀, 법률자문팀, 법무실장실"],
+    ["40F","법무실: 권리보호과, 권리심사팀, 실무 간부진 전용 라운지"],
+    ["39F","법무실: 법령검토팀, 행정제도팀"],
+    ["38F","국제첩보실: 정보분석팀, 데이터품질팀, 국제첩보실장실"],
+    ["37F","국제첩보실: 해외정보팀, 국제협력팀, 암호통신실"],
+    ["36F","수사과: 검거팀, 증거관리팀"],
+    ["35F","수사과: 디지털수사팀, 추적팀, 수사과장실"],
+    ["34F","수사과: 특별수사팀, 불법능력수사팀"],
+    ["33F","감찰실: 청렴조사과, 감찰후속관리팀"],
+    ["32F","감찰실: 감찰1팀, 감찰2팀, 감찰실장실"]
+  ]},
+  { s:"자산보호", n:"자산보호국", c:"#3fd0a0", f:[
+    ["31F","기획과: 제도개선팀, 정책개발팀, 기획과장실"],
+    ["30F","기획과: 성과평가팀, 업무조정팀, 실내정원"],
+    ["29F","기획과: 조직관리팀, 조직기획팀"],
+    ["28F","총무과: 물자관리팀, 차량지원팀, 총무과장실"],
+    ["27F","총무과: 자원관리팀, 행정지원팀"],
+    ["26F","총무과: 청사관리팀, 문서행정팀"],
+    ["25F","인사과: 교육관리팀, 교육훈련팀, 대형휴게실"],
+    ["24F","인사과: 복무팀, 감평사관리팀, 인사과장실"],
+    ["23F","인사과: 인사운영팀, 인사팀"],
+    ["22F","재무과: 회계팀, 감사지원팀, 재무과장실"],
+    ["21F","재무과: 예산집행팀, 계약관리팀"],
+    ["20F","재무과: 예산팀, 예산기획팀"]
+  ]},
+  { s:"감정관리", n:"감정관리국", c:"#e58fd0", f:[
+    ["19F","자산등록과: 이력관리팀, 자산이력팀, 자산등록과장실"],
+    ["18F","자산등록과: 등록심사팀, 신규등록팀"],
+    ["17F","제3감정과: 재감정팀, 복합능력심사팀, 제3감정과장실"],
+    ["16F","제3감정과: 등급심사1팀, 등급심사2팀, 특수심사팀"],
+    ["15F","제2감정과: 분석팀, 능력분석팀, 제2감정과장실"],
+    ["14F","제2감정과: 등급심사1팀, 등급심사2팀, 도서실, 재감정팀"],
+    ["13F","제1감정과: 판정기준팀, 기초능력평가팀, 제1감정과장실"],
+    ["12F","제1감정과: 등급심사1팀, 등급심사2팀, 재감정팀"]
+  ]},
+  { s:"민원지원", n:"민원지원국", c:"#ff9090", f:[
+    ["11F","사후지원과: 복지팀, 상담팀, 복지연계팀, 수면실"],
+    ["10F","사후지원과: 지원팀, 피해지원팀, 보상지원팀, 사후지원과장실"],
+    ["9F","위기대응과: 구조지원팀, 통합대응팀, 샤워실"],
+    ["8F","위기대응과: 통제팀, 능력통제팀, 위기대응과장실"],
+    ["7F","위기대응과: 초동대응팀, 초동1팀, 초동2팀"],
+    ["6F","실태조사과: 미등록추적팀, 조사지원팀, 실태조사과장실"],
+    ["5F","실태조사과: 현장조사팀, 조사관리팀, 체단실"],
+    ["4F","실태조사과: 조사1팀, 조사2팀"],
+    ["3F","운영지원과: 방문객지원팀, 편의시설관리팀, 식음시설관리팀"],
+    ["2F","운영지원과: 경비보안팀, 환경관리반, 운영지원과장실"],
+    ["1F","민원실, 안내실, 방문객접견실, 구내식당, 카페"]
+  ]},
+  { s:"지하", n:"지하 - 독립 편제", c:"#7a8bb0", f:[
+    ["B1","물류하역, 통합창고, 물자관리, 장비보관, 소모품, 폐기물시설","B1 물자관리실"],
+    ["B2","기계, 전력, 발전, 공조, 서버, 통신, 전산보안시설","B2 시설인프라관리실"],
+    ["B3","의료, 응급, 수술, 격리병실, 안정화, 임시억류, 보안면회, 조사시설","B3 의료보안실"],
+    ["B4","고위험억류, 능력억제격리, 격리보관, 압수물, 증거물, 감식, 이송통제시설","B4 자산처분실"],
+    ["B5","비상지휘, 대피, 통신, 발전, 비축, 탈출시설","B5 비상대응실"]
+  ]},
+  { s:"부속", n:"부속 및 별도 시설", c:"#a3b36b", f:[
+    ["SUB1","일반 연구실, 실험실, 연구지원실","부속 건물 1F","부속1"],
+    ["SUB2","능력 연구실, 특수장비 실험실","부속 건물 2F","부속2"],
+    ["SUB3","고위험 실험실, 격리실, 연구통제실","부속 건물 3F","부속3"],
+    ["PARK","주차장, 관용차량 보관소, 경호차량 대기구역, 긴급출동 차고","별도 주차동","주차동"]
+  ]}
+];
+
+// 프로필: p(이름, 성별, 키, 몸무게, 나이, 직위, 능력/등급, 이미지, 특이사항)
+const p = (name, gender, height, weight, age, position, ability, image, note, noteLabel) =>
+  ({ name, gender, height, weight, age, position, ability, image, note, noteLabel });
+const I = "https://i.ibb.co/";
+const M = "1man-male-Portrait-straight-on-looking-at-viewer-white-background-";
+const W = "1woman-female-Portrait-straight-on-looking-at-viewer-white-background-";
+
+const P = {
+  "44F": [p("정광후","남성","186cm","88kg","42세","NAAB 4대 청장, 재직 4년차","무능력자(일반인)",I+"F4SGp81J/"+M+"mature-s-3000319703.png")],
+  "43F": [p("신혜경","여성","171cm","61kg","61세","NAAB 부청장, 정보통계국 부국장, 재직 36년차","무감공간 / 국부급 / 788pt",I+"9H6ncWTB/"+W+"s-3172310869.png")],
+  "42F": [
+    p("강병수","남성","181cm","71kg","54세","NAAB 정보통계국장, 재직 32년차","환상 / 국부급 / 755pt",I+"2YcKHCHd/"+M+"mature-s-231138906.png"),
+    p("이태영","남성","185cm","87kg","51세","NAAB 자산보호국장 / 재직 23년차","가치 전환 / 국부급 / 744pt",I+"cX7p5SQB/"+M+"mature-s-483002252.png"),
+    p("박재욱","남성","188cm","87kg","51세","NAAB 감정관리국장, 재직 25년차","인과율 관측 / 국부급 / 730pt",I+"rfdH39J9/"+M+"mature-s-2084325514.png"),
+    p("오숙희","여성","163cm","51kg","51세","NAAB 민원지원국 국장, 재직 25년차","무효화 / 국부급 / 732pt",I+"3ycv3LFy/"+W+"s-2982446407.png"),
+    p("한성훈","남성","187cm","80kg","31세","NAAB 감정관리국 부국장, 재직 6년차","꼭두각시 / 국부급 / 714pt",I+"M5ptzg35/"+M+"matu-s-4270042800.png"),
+    p("서운아","여성","167cm","54kg","30세","NAAB 자산보호국 부국장, 재직 7년차","약물 창조 / 국부급 / 712pt",I+"8gzVXNnM/"+W+"s-581288001.png"),
+    p("김진호","남성","187cm","80kg","31세","NAAB 민원지원국 부국장, 재직 7년차","염동력 / 국부급 / 713pt",I+"bjvTQ992/"+M+"matu-s-4017969467.png")
+  ],
+  "32F": [p("류채설","여성","171cm","60kg","32세","NAAB 정보통계국 감찰실장, 재직 3년차","절단 / 특허급 / 621pt",I+"DP30D9Js/image.png",
+    "NAAB의 미친개. 오만한 성정으로 3년간 실적이 거의 없어 감찰실은 유령부서. 10대 가문·행능부 장차관이 뒷배라 살인급 중범죄 외엔 해임 불가. 선천캐피터 우월주의자, 동성애 혐오, 장애인·무능력자 멸시. 1팀은 친인척·낙하산, 2팀은 시녀로 구성.","특징")],
+  "31F": [p("포의별","남성","168cm","74kg","39세","NAAB 자산보호국 기획과장 8년차","예외 / 특허급 / 671pt",I+"jkXt7TCD/image.png"),
+    p("화새휘","남성","171cm","52kg","38세","NAAB 자산보호국 기획과 정책개발팀장 6년차","작도(∴) / 특허급 / 684pt",I+"Mx0WGwNh/image.png")],
+  "26F": [p("조건우","남성","176cm","62kg","43세","NAAB 자산보호국 총무과 문서행정팀장 3년차","일반인",I+"23k9DzcY/2314.png",
+    "자산보호국 문서행정 및 보안 업무 총괄, NAAB 내부 보안 프로그램 및 실무용 프로그램 개발 담당, 공식 직책과 별개로 정보보안 관련 기술 자문 담당","상세"),
+    p("운단우","남성","184cm","81kg","39세","NAAB 자산보호국 총무과 청사관리팀장 5년 차","일반인(무능력자)",I+"twj5X7tM/2144124.png")],
+  "41F": [p("육재준","남성","182cm","81kg","44세","NAAB 정보통계국 법무실장 5년차","일반인(무능력자)",I+"XxdSrBjF/70cb4612-a82e-4b6f-904d-dc65d496d679.webp"),
+    p("남승유","남성","179cm","66kg","44세","NAAB 정보통계국 법무실 법률자문팀장 (3년째 계약직 겸임)","일반인",I+"xKmcPnk1/image.png",
+      "해외·국내 법조계 경력 24년. 인터폴 및 ICAA 협력자문변호사 14년 차. 사건 수임 계약 체결, 고난도 국제 분쟁 및 대형 기업 사건 건당 수백억 원 보수. NAAB 내부 호칭 '남변호사님'.","상세")],
+  "RF": [p("허현","남성","168cm","51kg","41세","NAAB 옥상시설관리실장 13년차","좌표 / 특허급 / 687pt",I+"JjW976GM/2.png"),
+    p("교진현","남성","191cm","88kg","36세","NAAB 옥상시설관리실 주임, 근속 8년 차 / 허현의 최측근","유화 / 특허급 / 679pt",I+"KpNzV2KL/1.png")],
+  "B1": [p("탁준","남성","187cm","91kg","43세","NAAB 물자관리실장 18년차","물류 / 특허급 / 693pt",I+"MD16Dx1C/1.png"),
+    p("계연우","남성","178cm","64kg","35세","NAAB 물자관리실 대리 / 재직 10년차 / 탁준의 최측근","귀중품 / 특허급 / 687pt",I+"zq7zv5Q/1.png")],
+  "B2": [p("서문보연","남성","165cm","49kg","42세","NAAB 시설인프라관리실장 18년차 / 지하 2층(B2) 전체 시설·인프라 관리 책임","접속 / 특허급 / 697pt",I+"j9C48218/image.png"),
+    p("곽의주","남성","167cm","50kg","37세","NAAB 시설인프라관리실 대리 / 10년 차 / 서문보연의 최측근","전기화(초미세전류) / 특허급 / 691pt",I+"C5txVc2n/image.png")],
+  "B3": [p("선우유지","남성","180cm","71kg","41세","NAAB 의료보안실장 14년차","분해 / 특허급 / 686pt",I+"Gv8T7V3T/image.png"),
+    p("림연담","남성","162cm","68kg","38세","NAAB 의료보안실 계장 / 재직 9년 차 / 선우유지의 최측근","생체원형 / 특허급 / 682pt",I+"1YLfPnDW/1.png")],
+  "B4": [p("심성","남성","189cm","93kg","42세","NAAB 자산처분실장 13년차","구획 / 특허급 / 687pt",I+"JF80Q0xJ/image.png"),
+    p("군범윤","남성","178cm","76kg","38세","NAAB 자산처분실 대리 / 근속 10년 차 / 심성의 최측근","종결 / 특허급 / 689pt",I+"8D21qsWz/1.png")],
+  "B5": [p("고호","남성","162cm","43kg","42세","NAAB 비상복구실장 12년차","계통 / 특허급 / 692pt",I+"RwDMCwB/image.png"),
+    p("제태화","남성","188cm","84kg","38세","NAAB 비상대응실 주임 8년 차 / 고호의 최측근","교정 / 특허급 / 691pt",I+"ZzwHsCbx/1.png")],
+  "38F": [
+    p("황의재","남성","181cm","79kg","43세","NAAB 정보통계국 국제첩보실장 6년차","궤적 / 특허급 / 676pt",I+"hRNYsnsw/214234314.png"),
+    p("설세호","남성","174cm","61kg","39세","NAAB 정보통계국 국제첩보실 정보분석팀장 9년차","역전 / 특허급 / 672pt",I+"PZDmYPsX/image.webp")
+  ],
+  "35F": [
+    p("혜은준","남성","177cm","71kg","38세","NAAB 정보통계국 수사과장 / 5년차","위장 / 특허급 / 661pt",I+"v6NP2kfd/1man-male-Portrait-straight-on-looking-at-viewer-white-background-two-s-2161120348.png"),
+    p("필이수","남성","179cm","68kg","39세","NAAB 정보통계국 수사과 디지털수사팀장 10년차","정보시야 / 특허급 / 687pt",I+"chQ4t9F2/1231321332132132.png")
+  ],
+  "33F": [
+    p("엽치원","남성","183cm","77kg","39세","NAAB 정보통계국 감찰실 청렴조사과장 / 10년차","공명 / 특허급 / 682pt",I+"h1KV0Xzh/2114142344.png",
+      "감찰실 업무 대부분을 대신하는 실권 부서. 감찰실 본체는 유령부서, 청렴조사과 실적은 별도 집계. 황의재는 상사로 대하나 류채설은 상사로 취급 안 함.")
+  ],
+  "28F": [
+    p("주재은","남성","183cm","78kg","43세","NAAB 자산보호국 총무과장 10년차","배분 / 특허급 / 680pt",I+"4wJNj4qX/4311334343.png"),
+    p("차규안","남성","174cm","73kg","29세","NAAB 자산보호국 총무과 차량지원팀장 2년차","저항 감쇄 / 특허급 / 630pt",I+"yBnDJXhf/1man-male-Portrait-straight-on-looking-at-viewer-white-background-two-s-2749565716.png")
+  ],
+  "24F": [
+    p("규도경","남성","172cm","64kg","38세","NAAB 자산보호국 인사과장 / 7년차","이격 / 특허급 / 670pt",I+"qMpdwhwj/313435215.png"),
+    p("원주혁","남성","183cm","73kg","39세","NAAB 자산보호국 인사과 복무팀장 9년차","정산 / 특허급 / 674pt",I+"rKkvrzw2/image.webp")
+  ],
+  "22F": [
+    p("함이든","남성","178cm","70kg","40세","NAAB 자산보호국 재무과장 10년차","황금률 / 특허급 / 681pt",I+"QvQ2c1jD/image.png"),
+    p("송귀인","남성","181cm","77kg","41세","NAAB 자산보호국 재무과 회계팀장 6년차","기류 / 특허급 / 676pt",I+"FkycL2k6/image.webp"),
+    p("백시헌","남성","180cm","82kg","38세","NAAB 자산보호국 재무과 감사지원팀장 (11년차)","직감·신체강화계 / 특허급 / 655pt",I+"YBCn7X6x/11.png")
+  ],
+  "19F": [
+    p("동방원일","남성","185cm","72kg","40세","NAAB 감정관리국 자산등록과장 / 9년차","식별 / 특허급 / 668pt",I+"JR5p70zk/12321.png"),
+    p("재유균","남성","180cm","72kg","39세","NAAB 감정관리국 자산등록과 이력관리팀장 7년차","보관 / 특허급 / 677pt",I+"C3f9v1kG/image.webp")
+  ],
+  "17F": [p("사공승운","남성","181cm","72kg","41세","NAAB 감정관리국 제3감정과장 / 10년차","패턴 / 특허급 / 669pt",I+"Pz6Z2WQY/2131431.png"),
+    p("영새온","남성","168cm","57kg","38세","NAAB 감정관리국 제3감정과 재감정팀장 8년차","섹션 사인(§) / 특허급 / 681pt",I+"jZfbzHky/image.png")],
+  "15F": [p("독고한길","남성","183cm","78kg","39세","NAAB 감정관리국 제2감정과장 / 9년차","편차 / 특허급 / 677pt",I+"G4ZqvMTm/423415.png"),
+    p("준래하","남성","178cm","67kg","38세","NAAB 감정관리국 제2감정과 분석팀장 9년차","시그마(Σ) / 특허급 / 681pt",I+"YBZ38FBC/image.png")],
+  "13F": [
+    p("황보선욱","남성","188cm","91kg","42세","NAAB 감정관리국 제1감정과장 / 11년차","기준점 / 특허급 / 664pt",I+"cjfXGHF/2112321434.png"),
+    p("묵희겸","남성","181cm","72kg","42세","NAAB 감정관리국 제1감정과 판정기준팀장 8년차","검증 / 특허급 / 678pt",I+"C5NqYsz8/4322431132344.png")
+  ],
+  "10F": [
+    p("남궁우영","남성","175cm","66kg","40세","NAAB 민원지원국 사후지원과장 / 8년차","역행 / 특허급 / 682pt",I+"dJ5pdPbC/11432552.png"),
+    p("위우빈","남성","166cm","54kg","35세","NAAB 민원지원국 사후지원과 지원팀장 / 7년차","전이 / 특허급 / 672pt",I+"pBHgf2wD/image.webp")
+  ],
+  "8F": [
+    p("문찬민","남성","192cm","109kg","42세","NAAB 민원지원국 위기대응과장 / 10년차","지휘 / 특허급 / 677pt",I+"gZ2ZL6B5/12144345.png"),
+    p("초예준","남성","180cm","72kg","42세","NAAB 민원지원국 위기대응과 통제팀장 9년차","보이지 않는 손 / 특허급 / 666pt",I+"Df6cn7y4/image.webp")
+  ],
+  "6F": [
+    p("제갈현승","남성","185cm","82kg","41세","NAAB 민원지원국 실태조사과장 / 10년차","천라지망 / 특허급 / 682pt",I+"XZ90RRgs/image.webp"),
+    p("평우현","남성","181cm","76kg","39세","NAAB 민원지원국 실태조사과 조사지원팀장 7년차","연동 / 특허급 / 681pt",I+"hR5qS1Bn/image.webp")
+  ],
+  "2F": [p("창도하","남성","184cm","79kg","39세","NAAB 민원지원국 운영지원과 경비보안팀장 11년차","은사 / 특허급 / 681pt",I+"twtS8gVq/e123.png"),
+    p("후남혁","남성","188cm","89kg","38세","NAAB 민원지원국 운영지원과장 9년 재직","신체강화계 - 변형 / 특허급 / 682pt",I+"20Qv7tC1/image.png")],
+  "SUB1": [
+    p("배온유","남성","188cm","91kg","42세","NAAB 연구동 총괄실장, 재직 18년 차","합성 / 특허급 / 699pt",I+"hFbd9N6F/f6d4f4b7-5ba3-4855-92c6-65fb3a41f84b.jpg"),
+    p("최지섭","남성","182cm","92kg","42세","NAAB 연구동 부실장, 재직 18년차","무능력자(일반인)",I+"cSBdHtms/1man-male-Portrait-straight-on-looking-at-viewer-white-background-two-t-s-4215276501.png")
+  ]
+};
+
+const F = G.flatMap(g => g.f.map(([id, d, name, chip]) => ({ id, d, name: name || id, chip: chip || id, g })));
+const $ = s => document.querySelector(s);
+const map = $('#map'), detail = $('#detail');
+const btns = [];
+let cur = 0;
+
+G.forEach(g => {
+  const sec = document.createElement('section');
+  sec.className = 'grp';
+  sec.style.setProperty('--g', g.c);
+  sec.innerHTML = `<h2><span class="s">${g.s}</span><span class="n">${g.n}</span></h2><div class="chips"></div>`;
+  const box = sec.querySelector('.chips');
+  F.forEach((f, i) => {
+    if (f.g !== g) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = f.chip;
+    b.title = f.name;
+    if (P[f.id]) b.insertAdjacentHTML('beforeend', '<i class="dot"></i>');
+    b.onclick = () => show(i);
+    btns[i] = b;
+    box.appendChild(b);
+  });
+  map.appendChild(sec);
+});
+
+function show(i) {
+  cur = i;
+  const f = F[i];
+  btns.forEach((b, j) => {
+    b.classList.toggle('on', j === i);
+    b.setAttribute('aria-pressed', j === i);
+  });
+
+  const k = f.d.indexOf(': ');
+  const unit = k > -1 ? f.d.slice(0, k) : '';
+  const items = (k > -1 ? f.d.slice(k + 2) : f.d).split(', ');
+  const pr = P[f.id] || [];
+
+  detail.style.setProperty('--g', f.g.c);
+  detail.innerHTML = `
+    <div class="dh">
+      <div>
+        <div class="big">${f.id}</div>
+        ${f.name !== f.id ? `<div class="sub">${f.name}</div>` : ''}
+        <span class="tag">${f.g.n}</span>
+      </div>
+      <div class="nav">
+        <button type="button" data-go="-1" aria-label="위층" ${i === 0 ? 'disabled' : ''}>▲</button>
+        <button type="button" data-go="1" aria-label="아래층" ${i === F.length - 1 ? 'disabled' : ''}>▼</button>
+      </div>
+    </div>
+    <div class="unit">
+      ${unit ? `<h3>${unit}</h3>` : ''}
+      <div class="pills">${items.map(t => `<span>${t}</span>`).join('')}</div>
+    </div>
+    <div class="pfs${pr.length >= 4 ? ' dense' : ''}">
+      <div class="pf-title">소속 간부</div>
+      ${pr.length ? pr.map(p => `
+        <div class="pf${pr.length > 1 ? ' many' : ''}">
+          <div class="ph"><img src="${p.image}" alt="${p.name}" referrerpolicy="no-referrer"></div>
+          <div class="pi">
+            <b>${p.name}</b>
+            <p>${p.position}</p>
+            <dl>
+              ${p.gender ? `<div><dt>성별</dt><dd>${p.gender}</dd></div>` : ''}
+              <div><dt>나이</dt><dd>${p.age}</dd></div>
+              <div class="w"><dt>체격</dt><dd>${p.height} / ${p.weight}</dd></div>
+              <div class="w"><dt>능력/등급</dt><dd>${p.ability}</dd></div>
+              ${p.note ? `<div class="w"><dt>${p.noteLabel || '특이사항'}</dt><dd>${p.note}</dd></div>` : ''}
+            </dl>
+          </div>
+        </div>`).join('') : '<div class="none">등록된 담당 간부가 없습니다.</div>'}
+    </div>`;
+
+  detail.querySelectorAll('.ph img').forEach(im => {
+    im.onerror = () => { im.parentNode.textContent = im.alt.charAt(0); };
+  });
+}
+
+detail.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]');
+  if (!b) return;
+  const n = cur + Number(b.dataset.go);
+  if (n >= 0 && n < F.length) show(n);
+});
+
+/* ---------- 세계 10대 기업 ---------- */
+const C = [
+  ["말리오스 컴퍼니","MALLIOS Company","스위스","캐피터 생명공학·의료 분야 세계 1위","이사회→CEO→글로벌 경영위원회→의료기술사업부·능력제어기술사업부·특수약물생체소재사업부·임상응용연구부·캐피터데이터센터·법무규제본부·윤리인권본부·보안실·특별사업감독실","LWOnrlY"],
+  ["블랙호크 밀리터리","Blackhawk Military","미국","캐피터 대응 군사기술 세계 최대 기업","이사회→CEO→글로벌 방위전략위원회→대응무기사업부·능력간섭기술사업부·특수전장비사업부·군사전자연구소·전략무기개발본부·군사협력본부·정부협력실·정보보안실·특수무기감독실","RPo8icD"],
+  ["대한국제금융","Korea International Finance (KIF)","한국","캐피터 금융시장의 절대적 강자","이사회→CEO→글로벌 금융전략위원회→캐피터금융사업부·능력자보험사업부·자산운용본부·특허금융부·기업금융본부·신용평가센터·리스크관리본부·금융규제법무본부·금융보안실·특별자산관리실","CUdju0J"],
+  ["몽테뉴 에너지","Montagne Energy","프랑스","세계 에너지 산업을 지배하는 초대형 기업","이사회→CEO→글로벌 에너지전략위원회→석유가스사업부·원자력사업부·신재생에너지사업부·초고출력발전연구부·에너지저장연구소·캐피터에너지응용연구부·에너지망관리본부·환경안전본부·법무규제본부·특수에너지사업감독실","cLPvXmh"],
+  ["명성하이텍","Myeongseong Hi-Tech","한국","캐피터 측정·분석 기술의 세계적 표준 기업","이사회→CEO→글로벌 기술전략위원회→반도체사업부·AI컴퓨팅사업부·능력측정기술사업부·캐피터센서연구소·첨단전자연구소·데이터분석본부·국가기관협력본부·품질표준관리본부·기술보안실·특수측정기술관리실","O28aS8J"],
+  ["네오링크","NeoLink","사우디아라비아","세계 최대 캐피터 정보·데이터 플랫폼 기업","이사회→CEO→글로벌 데이터전략위원회→검색플랫폼사업부·AI사업부·클라우드사업부·캐피터데이터사업부·능력상성분석연구소·글로벌데이터센터·정보보안본부·개인정보윤리본부·정부협력본부·특별정보관리실","SRunvHv"],
+  ["크루거 하우젠","Kruger Hausen","독일","캐피터 시대의 산업시설과 도시를 건설하는 초대형 복합기업","이사회→CEO→글로벌 산업전략위원회→건설사업부·중공업사업부·조선사업부·산업플랜트사업부·캐피터대응건축연구소·도시재난대응연구부·인프라관리본부·국가사업협력본부·안전환경관리본부·특수시설사업감독실","uIh3dG2"],
+  ["라이온디안 통신","Liondian Communications","싱가포르","세계 통신 인프라의 핵심 기업","이사회→CEO→글로벌 통신전략위원회→이동통신사업부·인터넷망사업부·위성통신사업부·재난통신사업부·차세대통신연구소·네트워크운영본부·국가통신협력본부·통신보안본부·재난대응관리실·특수통신사업감독실","MhTWXeI"],
+  ["쿠로가와 공업","Kurogawa Industries","일본","인간·기계·능력의 결합을 추구하는 종합 모빌리티 기업","이사회→CEO→글로벌 모빌리티전략위원회→자동차사업부·항공사업부·철도사업부·로봇자동화사업부·외골격기술사업부·캐피터보조기술연구소·자율주행연구본부·차세대이동체연구소·글로벌안전관리본부·특수모빌리티사업감독실","YB8JMBo"],
+  ["레드포드 엔터테인먼트","Redford Entertainment","영국","캐피터에 대한 대중의 인식을 형성하는 세계 최대 미디어 기업","이사회→CEO→글로벌 콘텐츠전략위원회→방송사업부·영화사업부·음악사업부·게임사업부·스트리밍사업부·캐피터콘텐츠제작본부·글로벌IP관리본부·여론트렌드분석센터·미디어윤리법무본부·기업보안실·특별콘텐츠감독실","4zQFZjA"]
+];
+const SQ = ['Cf64duD', 'LWOnrlY', 'NGvHL6N', '2oVswI4', 'Foq3HXL', 'cwVv3vw', 'jWAa626', 'izRfj80', '259H9nU', 'uC5BQgy', '4DHlCpF']; // 1:1 로고 (NAAB, 말리오스, ICAA, UFAA, 행안능부, 중국·일본·프랑스·독일·사우디·싱가포르)
+const R54 = ['6xvj5fh', 'wMiy0dl']; // 1.5:1.2 로고 (영국·호주)
+// 그 외(기업)는 기본 비율 3:2
+const logoHTML = (id, name, cls = '') =>
+  `<span class="logo ${SQ.includes(id) ? 'sq' : R54.includes(id) ? 'r54' : ''} ${cls}"><img data-id="${id}" alt="${name}"></span>`;
+function loadImg(im) {
+  const id = im.dataset.id, list = [];
+  ['no-referrer', ''].forEach(rp => ['.png', '.jpg', '.webp', ''].forEach(e => list.push([`https://i.imgur.com/${id}${e}`, rp])));
+  let n = 0;
+  const next = () => {
+    if (n >= list.length) { im.parentNode.textContent = im.alt.charAt(0); return; }
+    const [u, rp] = list[n++];
+    im.referrerPolicy = rp;
+    im.src = u;
+  };
+  im.onerror = next;
+  next();
+}
+const fixLogos = root => root.querySelectorAll('.logo img[data-id]').forEach(loadImg);
+
+// CEO 프로필 (C 배열의 인덱스 기준)
+const CEO = {
+  1: p("빈센즈 블랙","남성","190cm","97kg","52세","블랙호크 밀리터리 CEO","초재생·신체강화계 / 국부급 / 790pt",I+"bgKjp3h4/123231.png"),
+  2: p("표건","남성","185cm","78kg","52세","대한국제금융 CEO","데이터베이스 / 국부급 / 784pt",I+"0pnstCsC/123213123213.png"),
+  3: p("가비엘 데 몽테뉴","남성","180cm","76kg","47세","몽테뉴 에너지 CEO","동력 부여 / 국부급 / 769pt",I+"4ZHb3cq7/1man-male-Portrait-straight-on-looking-at-viewer-white-background-two-t-s-4223491491-1.png"),
+  4: p("명승제","남성","184cm","71kg","53세","명성하이텍 CEO","회로 / 국부급 / 777pt",I+"2DgwRyw/1212-13.png"),
+  5: p("라얀 알 나힘","남성","182cm","78kg","52세","네오링크 CEO","해킹 / 국부급 / 781pt",I+"7xsbvZJW/image.png"),
+  0: p("밀런 조란","남성","188cm","86kg","42세","말리오스 컴퍼니 CEO","현상 / 국부급 / 790pt",I+"bjtyw340/image.png"),
+  6: p("헤르만 크루거","남성","181cm","85kg","48세","크루거 하우젠 CEO","구조 설계 / 국부급 / 776pt",I+"9mXc1k3w/213213123214114.png"),
+  7: p("페단 림","남성","182cm","74kg","41세","라이온디안 통신 CEO","연결 / 국부급 / 765pt",I+"wFsJyc8t/image.png"),
+  8: p("쿠로가와 렌","남성","189cm","89kg","48세","쿠로가와 공업 CEO","확장 / 국부급 / 762pt",I+"0VBgCSvL/21321314134.png"),
+  9: p("레드포드 칼","남성","181cm","71kg","41세","레드포드 엔터테인먼트 CEO","스트리밍 / 국부급 / 773pt",I+"Lh6p6kLW/243241341.png")
+};
+// CEO 최측근 (기업 인덱스 기준)
+const AIDE = {
+  2: p("해일주","남성","194cm","103kg","39세","대한국제금융(KIF) 금융보안실 부장 / 재직 15년차 / 표건의 최측근","신체강화 - 가속 / 특허급 / 683pt",I+"vvBdt7RM/image.webp"),
+  1: p("사일러스 로즈","남성","171cm","61kg","38세","블랙호크 밀리터리 군사정보보안실 부장 / 13년차 / 빈센즈 블랙의 최측근","정보화·신체강화계 / 특허급 / 689pt",I+"spmP65YF/image.png"),
+  5: p("마젠 바와지르","남성","167cm","56kg","38세","네오링크 글로벌 데이터센터 부장 / 13년차 / 라얀 알 나힘의 최측근","코딩 / 특허급 / 694pt",I+"CjY2kxX/122132143214343141.png"),
+  6: p("바이스 라파엘","남성","197cm","89kg","39세","크루거 하우젠 글로벌 인프라관리본부 부장 / 15년차 / 헤르만 크루거의 최측근","결점 / 특허급 / 697pt",I+"LdH8qMbt/image.png"),
+  7: p("낭 카이엔","남성","177cm","68kg","38세","라이온디안 통신 차세대통신연구소 부장 / 13년차 / 페단 림의 최측근","실체화 / 특허급 / 691pt",I+"pjMm0Cbd/image.webp"),
+  8: p("미카게 시온","남성","199cm","91kg","39세","쿠로가와 공업 특수모빌리티사업감독실 부장 / 재직 15년 / 쿠로가와 렌의 최측근","조화 / 특허급 / 692pt",I+"hR33J75n/image.png"),
+  9: p("세인 실버우드","남성","187cm","76kg","39세","레드포드 엔터테인먼트 미디어윤리·법무본부 부장 / 재직 14년차 / 레드포드 칼의 최측근","명암 / 특허급 / 689pt",I+"R4DQs7p9/image.webp"),
+  4: p("학새서","남성","163cm","52kg","39세","명성하이텍 기술보안실 부장 / 재직 14년차 / 명승제의 최측근","암호화 / 특허급 / 697pt",I+"jPZ0X3MP/image.webp")
+};
+const cmap = $('#cmap'), cdetail = $('#cdetail');
+const cbtns = [];
+let ccur = 0;
+
+C.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'tile';
+  b.innerHTML = `${logoHTML(c[5], c[0])}<span class="tx"><b>${c[0]}</b><small>${c[2]}</small></span><em>${String(i + 1).padStart(2, '0')}</em>`;
+  b.onclick = () => cshow(i);
+  cbtns[i] = b;
+  cmap.appendChild(b);
+});
+fixLogos(cmap);
+
+function cshow(i) {
+  ccur = i;
+  const [kr, en, country, status, org, logo] = C[i];
+  cbtns.forEach((b, j) => {
+    b.classList.toggle('on', j === i);
+    b.setAttribute('aria-pressed', j === i);
+  });
+  const ex = [CEO[i], AIDE[i]].filter(Boolean);
+  const parts = org.split('→');
+  const top = parts.slice(0, 3);
+  const depts = parts[3].split('·');
+  cdetail.style.setProperty('--g', 'var(--amber)');
+  cdetail.innerHTML = `
+    <div class="dh">
+      <div class="ch">
+        ${logoHTML(logo, kr, 'xl')}
+        <div>
+          <div class="rk">#${i + 1}</div>
+          <div class="cn">${kr}</div>
+          <div class="sub">${en}</div>
+        </div>
+      </div>
+      <div class="nav">
+        <button type="button" data-go="-1" aria-label="이전 기업" ${i === 0 ? 'disabled' : ''}>▲</button>
+        <button type="button" data-go="1" aria-label="다음 기업" ${i === C.length - 1 ? 'disabled' : ''}>▼</button>
+      </div>
+    </div>
+    <span class="tag">${country}</span>
+    <div class="unit"><h3>위상</h3><p class="lead">${status}</p></div>
+    <div class="unit">
+      <h3>조직</h3>
+      <div class="chain">${top.map(t => `<span>${t}</span>`).join('<i>→</i>')}</div>
+      <div class="pills">${depts.map(t => `<span>${t}</span>`).join('')}</div>
+    </div>
+    <div class="pfs">
+      <div class="pf-title">경영진</div>
+      ${ex.length ? ex.map(x => `
+        <div class="pf${ex.length > 1 ? ' many' : ''}">
+          <div class="ph"><img src="${x.image}" alt="${x.name}" referrerpolicy="no-referrer"></div>
+          <div class="pi">
+            <b>${x.name}</b>
+            <p>${x.position}</p>
+            <dl>
+              <div><dt>성별</dt><dd>${x.gender}</dd></div>
+              <div><dt>나이</dt><dd>${x.age}</dd></div>
+              <div class="w"><dt>체격</dt><dd>${x.height} / ${x.weight}</dd></div>
+              <div class="w"><dt>능력/등급</dt><dd>${x.ability}</dd></div>
+            </dl>
+          </div>
+        </div>`).join('') : '<div class="none">등록된 경영진 정보가 없습니다.</div>'}
+    </div>`;
+  fixLogos(cdetail);
+  cdetail.querySelectorAll('.ph img').forEach(im => {
+    im.onerror = () => { im.parentNode.textContent = im.alt.charAt(0); };
+  });
+}
+
+cdetail.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]');
+  if (!b) return;
+  const n = ccur + Number(b.dataset.go);
+  if (n >= 0 && n < C.length) cshow(n);
+});
+
+/* ---------- ICAA ---------- */
+const IG = [
+  { s:"이사회", n:"ICAA 국제 캐피터 감정 이사회", c:"#c08bff", f:["이사회 의장"] },
+  { s:"최고감정관실", n:"최고감정관실", c:"#ff9f6b", f:["최고감정관"] },
+  { s:"위험분석", n:"국제 위험분석국", c:"#3fd0a0", f:["위험분석총감"] },
+  { s:"등록·등급", n:"국제 등록·등급국", c:"#e58fd0", f:["등록총감"] },
+  { s:"강제집행", n:"국제 강제집행국", c:"#ff9090", f:["집행총괄관"] },
+  { s:"감찰감사", n:"국제 감찰감사국", c:"#a3b36b", f:["최고감찰관"] },
+  { s:"재난대응", n:"국제 재난대응국", c:"#4fd1d9", f:["국제재난총감"] },
+  { s:"기밀정보", n:"국제기밀정보국", c:"#8d99b3", f:["정보총감"] }
+];
+const IROLE = { "최고감정관":"최고 책임자", "집행총괄관":"최고 현장권한", "이사회 의장":"최고 의결기관(국제 캐피터 감정 이사회) 의장" };
+const IP = {
+  "이사회 의장": [p("케플린 벨","남성","180cm","69kg","52세","ICAA 국제 캐피터 감정 이사회 의장, 재직 22년차","경계를 보는 눈 / 국부급 / 917pt",I+"tMgpmRKT/21313431412.webp")],
+  "최고감정관": [p("하인츠 켈러","남성","186cm","72kg","32세","ICAA 최고감정관 11년차","베리타스 / 국부급 / 920pt",I+"Y7SKvTRr/1man-male-Portrait-straight-on-looking-at-viewer-white-background-two-t-s-4202028648.png")],
+  "위험분석총감": [p("뤼디앙 베웬","남성","180cm","75kg","39세","ICAA 위험분석총감 8년차","투사 / 국부급 / 907pt",I+"LdjMpm08/123141432.png")],
+  "등록총감": [p("멜드릭 량","남성","172cm","57kg","41세","ICAA 등록총감 11년차","편제 / 국부급 / 912pt",I+"QFt9fcYf/image.png")],
+  "집행총괄관": [p("에피트 현","남성","191cm","102kg","37세","ICAA 집행총괄관 12년차","규정 / 국부급 / 940pt / 세계 2위",I+"ht68XbT/image.webp")],
+  "최고감찰관": [p("카시안 바렌느","남성","179cm","70kg","34세","ICAA 최고감찰관 8년차","의사 / 국부급 / 913pt",I+"FbN85xtH/21443423421.png")],
+  "국제재난총감": [p("발렌틴 크로이츠","남성","186cm","79kg","39세","ICAA 국제재난총감 9년차","한계 / 국부급 / 902pt",I+"jPShZQsK/214142341324.png")],
+  "정보총감": [p("세베린 발트","남성","177cm","62kg","41세","ICAA 정보총감 8년차","채집 / 국부급 / 905pt",I+"C5yrWgwS/image.png")]
+};
+const IF = IG.flatMap(g => g.f.map(name => ({ name, g })));
+const imap = $('#imap'), idetail = $('#idetail');
+const ibtns = [];
+let icur = 0;
+
+imap.insertAdjacentHTML('beforeend', `
+  <div class="info">
+    <b>International Capita Assessment Agency</b>
+    <span>본부: 스위스 제네바 · 국제 캐피터 관리 및 재난 개입 최고 기구</span>
+    <span>최고 의결기관: 국제 캐피터 감정 이사회 · 최고 책임자: 최고감정관 · 최고 현장권한: 집행총괄관</span>
+    <span>평소엔 각국 기관과 협력하나, 폭주·대규모 재난·국가 차원의 은폐 시 국가 기관의 지휘 체계에 들어갈 수 있음</span>
+  </div>`);
+IG.forEach(g => {
+  const sec = document.createElement('section');
+  sec.className = 'grp ig';
+  sec.style.setProperty('--g', g.c);
+  sec.innerHTML = `<h2><span class="s">${g.s}</span><span class="n">${g.n}</span></h2><div class="chips"></div>`;
+  const box = sec.querySelector('.chips');
+  IF.forEach((x, i) => {
+    if (x.g !== g) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip t';
+    b.textContent = x.name;
+    if (IP[x.name]) b.insertAdjacentHTML('beforeend', '<i class="dot"></i>');
+    b.onclick = () => ishow(i);
+    ibtns[i] = b;
+    box.appendChild(b);
+  });
+  imap.appendChild(sec);
+});
+
+function ishow(i) {
+  icur = i;
+  const x = IF[i], pr = IP[x.name] || [];
+  ibtns.forEach((b, j) => {
+    b.classList.toggle('on', j === i);
+    b.setAttribute('aria-pressed', j === i);
+  });
+  idetail.style.setProperty('--g', x.g.c);
+  idetail.innerHTML = `
+    <div class="dh">
+      <div>
+        <div class="big t">${x.name}</div>
+        ${IROLE[x.name] ? `<div class="sub">${IROLE[x.name]}</div>` : ''}
+        <span class="tag">${x.g.n}</span>
+      </div>
+      <div class="nav">
+        <button type="button" data-go="-1" aria-label="이전 직위" ${i === 0 ? 'disabled' : ''}>▲</button>
+        <button type="button" data-go="1" aria-label="다음 직위" ${i === IF.length - 1 ? 'disabled' : ''}>▼</button>
+      </div>
+    </div>
+    <div class="pfs">
+      <div class="pf-title">소속 인물</div>
+      ${pr.length ? pr.map(q => `
+        <div class="pf">
+          <div class="ph"><img src="${q.image}" alt="${q.name}" referrerpolicy="no-referrer"></div>
+          <div class="pi">
+            <b>${q.name}</b>
+            <p>${q.position}</p>
+            <dl>
+              <div><dt>성별</dt><dd>${q.gender}</dd></div>
+              <div><dt>나이</dt><dd>${q.age}</dd></div>
+              <div class="w"><dt>체격</dt><dd>${q.height} / ${q.weight}</dd></div>
+              <div class="w"><dt>능력/등급</dt><dd>${q.ability}</dd></div>
+            </dl>
+          </div>
+        </div>`).join('') : '<div class="none">등록된 인물이 없습니다.</div>'}
+    </div>`;
+  idetail.querySelectorAll('.ph img').forEach(im => {
+    im.onerror = () => { im.parentNode.textContent = im.alt.charAt(0); };
+  });
+}
+idetail.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]');
+  if (!b) return;
+  const n = icur + Number(b.dataset.go);
+  if (n >= 0 && n < IF.length) ishow(n);
+});
+
+/* ---------- 국가기관 ---------- */
+// [표시명, 부제(타일), 영문, 구분, 본부, 성격, 최고 책임자, 최고 현장권한, 로고]
+const O = [
+  ["UFAA","미국","United States Federal Appraisal Authority","미국","워싱턴 D.C.","미국 연방정부 직속 독립기관 · 국가자산 감정·등록·관리 및 국가위험 대응","최고연방감정관","전략집행총괄관","2oVswI4"],
+  ["행정안전능력부","한국 · MPAAS","Ministry of Public Administration and Ability Safety","한국","세종특별자치시","대한민국 중앙행정기관 · 국내 캐피터 정책·관리·감독 및 능력 재난 대응 총괄, NAAB 감사","장관","","Foq3HXL"],
+  ["국가초상능력위원회","중국 · CNCA","National Commission for Anomalous Capita Affairs","중국","베이징","중국 국가 차원의 초상능력·캐피터 관리 최고기관","국가초상능력관리총감","중앙능력집행총감","cwVv3vw"],
+  ["일본 국가능력청","일본 · JACA","Japan Capita Administration Agency","일본","도쿄","일본 내각부 산하 국가기관","국가능력청장","특수재난대응총감","jWAa626"],
+  ["국가초상현상청","프랑스 · ANAP","Agence Nationale des Anomalies et Pouvoirs","프랑스","파리","프랑스 정부 직속 독립행정기관","국가초상현상청장","특별개입총감","izRfj80"],
+  ["연방능력안전청","독일 · BFA","Bundesamt für Fähigkeitsaufsicht","독일","베를린","독일 연방정부 산하 연방기관","연방능력안전청장","연방특수대응총감","259H9nU"],
+  ["왕국능력자원청","사우디아라비아 · KCRA","Kingdom Capita Resources Authority","사우디아라비아","리야드","사우디아라비아 왕국 정부 직속 국가기관","왕국능력자원청장","국가능력안보총감","uC5BQgy"],
+  ["국가능력통제청","싱가포르 · SNCA","Singapore National Capita Authority","싱가포르","싱가포르","싱가포르 정부 직속 국가기관","국가능력통제청장","국가특수대응총감","4DHlCpF"],
+  ["왕립 캐피터 관리원","영국 · RCA","Royal Capita Authority","영국","런던","영국 왕실 및 정부의 권한 아래 운영되는 국가기관","왕립캐피터관리원장","왕립특수집행총감","6xvj5fh"],
+  ["연방능력관리청","호주 · AFCA","Australian Federal Capita Authority","호주","캔버라","호주 연방정부 직속 독립기관","연방능력관리청장","연방능력대응총감","wMiy0dl"]
+];
+// 국가기관 주요 인물 (O 배열 인덱스 기준)
+const OP = {
+  0: [p("찰스 도너번","남성","193cm","105kg","52세","UFAA 연방자산감정위원회 위원장","패권 / 국부급 / 951pt / 세계 1위",I+"1GG4Bw3x/image.webp")],
+  1: [
+    p("권대석","남성","188cm","89kg","63세","행정안전능력부 장관","복종 / 국부급 / 780pt",I+"208d7gKk/image.png"),
+    p("임연준","남성","182cm","88kg","42세","행정안전능력부 차관","그림자 공간 / 국부급 / 741pt",I+"6JV1LybT/image.png"),
+    p("구주완","남성","183cm","79kg","37세","행정안전능력부 기획조정실장 12년차","일반인",I+"1YpBwnMY/93dbcb64-cce7-4366-ab32-6bc6a8771781.jpg")
+  ],
+  2: [p("장천위","남성","186cm","82kg","49세","CNCA 중앙초상능력위원회 위원장","중앙통제 / 국부급 / 894pt",I+"svY1C6Qv/21321314214351.png")],
+  3: [p("마사키 코토","남성","182cm","69kg","47세","JACA 국가능력청장","절리 / 국부급 / 888pt",I+"ccHPf0KL/12321321312.png")],
+  4: [p("샤를 모렐","남성","187cm","78kg","47세","ANAP 국가초상현상위원회 위원장","미학 / 국부급 / 887pt",I+"Sw98hyf9/1231241414.png")],
+  5: [p("닉 베버","남성","189cm","89kg","46세","BFA 연방능력안전위원회 평의회의장","해제 / 국부급 / 891pt",I+"n8jh8JVd/4124414141.png")],
+  6: [p("무니브 바심 말릭","남성","185cm","78kg","46세","KCRA 왕국능력자원최고위원회 의장","국고 / 국부급 / 875pt",I+"S7GnCLTL/744w65.png")],
+  7: [p("휴고 첸","남성","187cm","74kg","46세","SNCA 국가능력통제위원회 위원장","관리 / 국부급 / 872pt",I+"4vs2d5d/2143141324.png")],
+  8: [p("필립 닐 월터","남성","188cm","76kg","47세","RCA 왕립 캐피터 평의회 왕실대표","헤리티지 크라운 / 국부급 / 879pt",I+"PGh9xm1n/765776.png")],
+  9: [p("벤저민 던컨","남성","190cm","97kg","44세","AFCA 연방능력관리위원회 위원장","와일드 프론티어 / 국부급 / 881pt",I+"jZ9cKX2C/736476473.png")]
+};
+const omap = $('#omap'), odetail = $('#odetail');
+const obtns = [];
+let ocur = 0;
+
+O.forEach((o, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'tile';
+  b.innerHTML = `${logoHTML(o[8], o[0])}<span class="tx"><b>${o[0]}</b><small>${o[1]}</small></span><em>${String(i + 1).padStart(2, '0')}</em>`;
+  b.onclick = () => oshow(i);
+  obtns[i] = b;
+  omap.appendChild(b);
+});
+fixLogos(omap);
+
+function oshow(i) {
+  ocur = i;
+  const [name, , en, kind, hq, nature, head, field, logo] = O[i];
+  const ex = OP[i] || [];
+  obtns.forEach((b, j) => {
+    b.classList.toggle('on', j === i);
+    b.setAttribute('aria-pressed', j === i);
+  });
+  odetail.style.setProperty('--g', 'var(--amber)');
+  odetail.innerHTML = `
+    <div class="dh">
+      <div class="ch">
+        ${logoHTML(logo, name, 'xl')}
+        <div>
+          <div class="cn">${name}</div>
+          <div class="sub">${en}</div>
+        </div>
+      </div>
+      <div class="nav">
+        <button type="button" data-go="-1" aria-label="이전 기관" ${i === 0 ? 'disabled' : ''}>▲</button>
+        <button type="button" data-go="1" aria-label="다음 기관" ${i === O.length - 1 ? 'disabled' : ''}>▼</button>
+      </div>
+    </div>
+    <span class="tag">${kind}</span>
+    <div class="fld">
+      <div class="unit full"><h3>기관 성격</h3><p>${nature}</p></div>
+      <div class="unit"><h3>본부</h3><p>${hq}</p></div>
+      <div class="unit"><h3>최고 책임자</h3><p>${head}</p></div>
+      ${field ? `<div class="unit"><h3>최고 현장권한</h3><p>${field}</p></div>` : ''}
+    </div>
+    ${ex.length ? `
+    <div class="pfs">
+      <div class="pf-title">주요 인물</div>
+      ${ex.map(q => `
+        <div class="pf${ex.length > 1 ? ' many' : ''}">
+          <div class="ph"><img src="${q.image}" alt="${q.name}" referrerpolicy="no-referrer"></div>
+          <div class="pi">
+            <b>${q.name}</b>
+            <p>${q.position}</p>
+            <dl>
+              <div><dt>성별</dt><dd>${q.gender}</dd></div>
+              <div><dt>나이</dt><dd>${q.age}</dd></div>
+              <div class="w"><dt>체격</dt><dd>${q.height} / ${q.weight}</dd></div>
+              <div class="w"><dt>능력/등급</dt><dd>${q.ability}</dd></div>
+            </dl>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}`;
+  fixLogos(odetail);
+  odetail.querySelectorAll('.ph img').forEach(im => {
+    im.onerror = () => { im.parentNode.textContent = im.alt.charAt(0); };
+  });
+}
+odetail.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]');
+  if (!b) return;
+  const n = ocur + Number(b.dataset.go);
+  if (n >= 0 && n < O.length) oshow(n);
+});
+
+/* ---------- 탭 ---------- */
+const mains = { floors: $('#p-floors'), corp: $('#p-corp'), org: $('#p-org'), icaa: $('#p-icaa') };
+const TT = {
+  floors: ["NAAB 본청 층별 배치", "층별 배치 및 담당 간부 현황"],
+  corp: ["세계 10대 기업", "기업별 국가·위상·조직 라인업"],
+  org: ["국가기관", "국가별 관리 기관 현황"],
+  icaa: ["ICAA", "국제 캐피터 감정 이사회 및 산하 조직 현황"]
+};
+let tab = 'floors';
+function setTab(t) {
+  tab = t;
+  for (const k in mains) mains[k].hidden = k !== t;
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  $('#h1').textContent = TT[t][0];
+  $('#sub').textContent = TT[t][1];
+  $('#legend').hidden = t !== 'floors' && t !== 'icaa';
+  $('#lg1').textContent = t === 'icaa' ? '인물 프로필' : '간부 프로필';
+  $('#lg2').textContent = t === 'icaa' ? '선택한 직위' : '선택한 층';
+  $('#hlogo').hidden = t !== 'floors';
+  $('#hlogo2').hidden = t !== 'icaa';
+  try { history.replaceState(null, '', '#' + t); } catch (e) {}
+}
+document.querySelectorAll('.tabs button').forEach(b => { b.onclick = () => setTab(b.dataset.tab); });
+fixLogos(document.querySelector('header'));
+
+addEventListener('keydown', e => {
+  const d = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }[e.key];
+  if (!d) return;
+  const st = {
+    floors: [cur, F.length, show, btns],
+    corp: [ccur, C.length, cshow, cbtns],
+    org: [ocur, O.length, oshow, obtns],
+    icaa: [icur, IF.length, ishow, ibtns]
+  }[tab];
+  const n = st[0] + d;
+  if (n < 0 || n >= st[1]) return;
+  e.preventDefault();
+  st[2](n);
+  st[3][n].focus({ preventScroll: true });
+});
+
+show(F.findIndex(f => f.id === "22F"));
+cshow(0);
+oshow(0);
+ishow(IF.findIndex(x => x.name === '최고감정관'));
+setTab(['corp', 'org', 'icaa'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'floors');
+</script>
+</body>
+</html>
